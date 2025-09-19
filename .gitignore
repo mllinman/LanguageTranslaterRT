@@ -67,17 +67,20 @@ captures/
 # Comment next line if keeping position of elements in Navigation Editor is desired
 .idea/navEditor.xml
 
-# Keystore files
-# Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
+# Keystore files - IMPORTANT: Never commit these to version control
+*.jks
+*.keystore
+release-keystore.*
+upload-keystore.*
+app/release-keystore.*
+app/upload-keystore.*
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-# google-services.json
+google-services.json
 
 # Freeline
 freeline.py
@@ -99,4 +102,55 @@ lint/intermediates/
 lint/generated/
 lint/outputs/
 lint/tmp/
-# lint/reports/
+lint/reports/
+
+# Production configuration files - NEVER commit these
+production.properties
+.env
+.env.local
+.env.production
+config/production/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# Test output
+/test-output/
+/test-results/
+/reports/
+
+# Coverage reports
+/coverage/
+*.lcov
+coverage.xml
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# APK signing
+app/src/release/
+app/release/
