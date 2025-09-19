@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Language Translator</string>
+    <string name="app_name">Language-TranslaterRT</string>
     <string name="start_listening">Start Listening</string>
     <string name="stop_listening">Stop Listening</string>
     <string name="listening">Listening...</string>
