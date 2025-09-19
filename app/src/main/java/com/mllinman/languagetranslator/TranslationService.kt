@@ -11,7 +11,16 @@ import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-class TranslationService {
+/**
+ * Result type for translation operations
+ */
+sealed class TranslationResult {
+    data class Success(val translatedText: String) : TranslationResult()
+    data class Error(val message: String, val originalText: String) : TranslationResult()
+    data class LimitExceeded(val message: String) : TranslationResult()
+}
+
+class TranslationService(private val subscriptionManager: SubscriptionManager? = null) {
     
     companion object {
         private const val TAG = "TranslationService"
@@ -71,10 +80,20 @@ class TranslationService {
     }
     
     /**
-     * Translates text to English using MyMemory API
+     * Translates text to English using MyMemory API with tier-based access control
      */
-    suspend fun translateToEnglish(text: String, sourceLanguage: String): String = withContext(Dispatchers.IO) {
+    suspend fun translateToEnglish(text: String, sourceLanguage: String): TranslationResult = withContext(Dispatchers.IO) {
         try {
+            // Check subscription status and usage limits
+            subscriptionManager?.let { manager ->
+                if (!manager.canMakeTranslation()) {
+                    val remaining = manager.getRemainingTranslations()
+                    return@withContext TranslationResult.LimitExceeded(
+                        "Daily translation limit reached. $remaining translations remaining today. Upgrade to Pro for unlimited translations."
+                    )
+                }
+            }
+            
             val sourceCode = getLanguageCode(sourceLanguage)
             val encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8.toString())
             
@@ -105,19 +124,22 @@ class TranslationService {
                 val responseData = jsonResponse.getJSONObject("responseData")
                 val translatedText = responseData.getString("translatedText")
                 
+                // Record usage for free tier users
+                subscriptionManager?.recordTranslationUsage()
+                
                 return@withContext if (translatedText.isNotEmpty()) {
-                    translatedText
+                    TranslationResult.Success(translatedText)
                 } else {
-                    text // Return original if translation failed
+                    TranslationResult.Error("Empty translation received", text)
                 }
             } else {
                 Log.e(TAG, "HTTP error: $responseCode")
-                return@withContext text // Return original text on error
+                return@withContext TranslationResult.Error("Network error: $responseCode", text)
             }
             
         } catch (e: Exception) {
             Log.e(TAG, "Translation error", e)
-            return@withContext text // Return original text on error
+            return@withContext TranslationResult.Error("Translation failed: ${e.message}", text)
         }
     }
     

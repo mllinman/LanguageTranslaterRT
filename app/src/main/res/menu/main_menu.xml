@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/auto">
+    
+    <item
+        android:id="@+id/action_subscription"
+        android:title="@string/subscription_menu_item"
+        android:icon="@drawable/ic_subscription"
+        app:showAsAction="never" />
+    
+    <!-- Debug options for testing (only visible in demo mode) -->
+    <item
+        android:id="@+id/action_simulate_near_limit"
+        android:title="Demo: Near Daily Limit"
+        app:showAsAction="never" />
+        
+    <item
+        android:id="@+id/action_simulate_limit_reached"
+        android:title="Demo: Limit Reached"
+        app:showAsAction="never" />
+        
+    <item
+        android:id="@+id/action_reset_usage"
+        android:title="Demo: Reset Usage"
+        app:showAsAction="never" />
+        
+</menu>
