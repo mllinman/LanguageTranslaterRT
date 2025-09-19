@@ -136,12 +136,12 @@ class MainActivity : AppCompatActivity() {
         if (isListening) {
             binding.statusText.text = getString(R.string.listening)
             binding.listenButton.text = getString(R.string.stop_listening)
-            binding.listenButton.icon = ContextCompat.getDrawable(this, android.R.drawable.ic_media_pause)
+            binding.listenButton.icon = ContextCompat.getDrawable(this, R.drawable.ic_stop)
             binding.progressIndicator.visibility = android.view.View.VISIBLE
         } else {
             binding.statusText.text = getString(R.string.start_listening)
             binding.listenButton.text = getString(R.string.start_listening)
-            binding.listenButton.icon = ContextCompat.getDrawable(this, android.R.drawable.ic_btn_speak_now)
+            binding.listenButton.icon = ContextCompat.getDrawable(this, R.drawable.ic_microphone)
             binding.progressIndicator.visibility = android.view.View.GONE
         }
     }
