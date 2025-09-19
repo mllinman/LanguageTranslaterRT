@@ -1,4 +1,4 @@
-# Language Translator - Production-Ready Android App
+# Language-TranslaterRT - Production-Ready Android App
 
 A modern Android application that translates any language to English in real-time using speech recognition. **Now production-ready with complete monetization system!**
 
