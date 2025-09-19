@@ -29,10 +29,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var translationService: TranslationService
+    private lateinit var subscriptionManager: SubscriptionManager
     private var isListening = false
     
     companion object {
         private const val RECORD_AUDIO_PERMISSION_CODE = 101
+        private const val SUBSCRIPTION_REQUEST_CODE = 102
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +43,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         
         setupToolbar()
+        setupSubscriptionManager()
         setupTranslationService()
         setupClickListeners()
+        updateSubscriptionUI()
         
         // Check if speech recognition is available
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -55,8 +59,12 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
     }
     
+    private fun setupSubscriptionManager() {
+        subscriptionManager = SubscriptionManager(this)
+    }
+    
     private fun setupTranslationService() {
-        translationService = TranslationService()
+        translationService = TranslationService(subscriptionManager)
     }
     
     private fun setupClickListeners() {
@@ -152,12 +160,30 @@ class MainActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val translation = withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     translationService.translateToEnglish(text, detectedLanguage)
                 }
                 
-                binding.translatedText.text = translation
-                binding.statusText.text = getString(R.string.start_listening)
+                when (result) {
+                    is TranslationResult.Success -> {
+                        binding.translatedText.text = result.translatedText
+                        binding.statusText.text = getString(R.string.start_listening)
+                        updateSubscriptionUI() // Update usage display
+                    }
+                    
+                    is TranslationResult.LimitExceeded -> {
+                        binding.statusText.text = getString(R.string.subscription_limit_reached)
+                        binding.translatedText.text = result.message
+                        showUpgradeDialog()
+                    }
+                    
+                    is TranslationResult.Error -> {
+                        binding.statusText.text = getString(R.string.translation_error)
+                        binding.translatedText.text = result.originalText
+                        Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                
                 binding.progressIndicator.visibility = android.view.View.GONE
                 
             } catch (e: Exception) {
@@ -166,6 +192,32 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, getString(R.string.translation_error), Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    
+    private fun updateSubscriptionUI() {
+        val summary = subscriptionManager.getSubscriptionSummary()
+        
+        // Update toolbar subtitle with subscription info
+        supportActionBar?.subtitle = when (summary.tier) {
+            SubscriptionManager.SubscriptionTier.PRO -> "Pro • Unlimited"
+            SubscriptionManager.SubscriptionTier.FREE -> "Free • ${summary.remainingTranslations} left today"
+        }
+    }
+    
+    private fun showUpgradeDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Daily Limit Reached")
+            .setMessage("You've reached your daily translation limit. Upgrade to Pro for unlimited translations.")
+            .setPositiveButton("Upgrade") { _, _ ->
+                openSubscriptionActivity()
+            }
+            .setNegativeButton("Maybe Later", null)
+            .show()
+    }
+    
+    private fun openSubscriptionActivity() {
+        val intent = Intent(this, SubscriptionActivity::class.java)
+        startActivityForResult(intent, SUBSCRIPTION_REQUEST_CODE)
     }
     
     private val speechRecognitionListener = object : RecognitionListener {
@@ -260,5 +312,34 @@ class MainActivity : AppCompatActivity() {
         if (::speechRecognizer.isInitialized) {
             speechRecognizer.destroy()
         }
+    }
+    
+    override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+    
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_subscription -> {
+                openSubscriptionActivity()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SUBSCRIPTION_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Subscription status may have changed, update UI
+            updateSubscriptionUI()
+        }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        updateSubscriptionUI()
     }
 }

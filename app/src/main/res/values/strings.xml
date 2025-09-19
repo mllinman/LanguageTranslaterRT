@@ -14,4 +14,16 @@
     <string name="translation_error">Translation failed. Please check your internet connection.</string>
     <string name="speech_recognition_error">Speech recognition failed. Please try again.</string>
     <string name="detected_language">Detected Language: %s</string>
+    
+    <!-- Subscription-related strings -->
+    <string name="current_subscription">Current Subscription</string>
+    <string name="pro_features">Pro Features</string>
+    <string name="upgrade_to_pro">Upgrade to Pro - $9.99/month</string>
+    <string name="restore_purchases">Restore Purchases</string>
+    <string name="subscription_terms">By subscribing, you agree to our Terms of Service and Privacy Policy. Subscription automatically renews unless canceled.</string>
+    <string name="subscription_limit_reached">Daily translation limit reached</string>
+    <string name="upgrade_for_unlimited">Upgrade to Pro for unlimited translations</string>
+    <string name="translations_remaining">%d translations remaining today</string>
+    <string name="unlimited_translations">Unlimited translations</string>
+    <string name="subscription_menu_item">Subscription</string>
 </resources>

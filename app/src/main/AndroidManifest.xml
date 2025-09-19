@@ -31,6 +31,12 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:name=".SubscriptionActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.LanguageTranslator" />
+        
     </application>
 
 </manifest>
