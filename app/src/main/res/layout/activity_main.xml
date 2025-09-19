@@ -72,6 +72,58 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Subscription Status Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/subscriptionStatusCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/subscriptionTierText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Free Tier"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                            android:textColor="?android:attr/textColorPrimary" />
+
+                        <TextView
+                            android:id="@+id/subscriptionUsageText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="100 translations remaining today"
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textColor="?android:attr/textColorSecondary" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/upgradeButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="Upgrade"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Original Text Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

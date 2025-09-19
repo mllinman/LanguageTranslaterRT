@@ -155,12 +155,27 @@ Runtime permissions are handled gracefully with user-friendly prompts.
 - Integrates with MyMemory translation API
 - Pattern-based language detection for offline capability
 - Error handling and fallback mechanisms
+- **Tier-aware translation** with usage tracking
+- **Sealed class results** for better error handling
+
+#### SubscriptionManager.kt
+- **Subscription tier management** (Free/Pro)
+- **Stripe SDK integration** for payment processing
+- **Daily usage tracking** with SharedPreferences
+- **Demo mode** for development and testing
+
+#### SubscriptionActivity.kt
+- **Subscription management UI** with Material Design 3
+- **Upgrade flow** with Stripe Checkout integration
+- **Purchase restoration** and subscription status display
 
 #### UI Components
 - **Material Design 3** theming with dark mode support
 - **Card-based layout** for clear separation of content
 - **Progress indicators** for user feedback during operations
 - **Responsive design** that works on different screen sizes
+- **Subscription status display** in main UI
+- **Upgrade prompts** when limits are reached
 
 ### Language Detection Algorithm
 
@@ -190,6 +205,49 @@ Example API call:
 ```
 GET https://api.mymemory.translated.net/get?q=Hello&langpair=en|es
 ```
+
+### Subscription Tiers with Stripe Integration
+
+#### Free Tier
+- **100 translations per day**
+- Basic language detection and translation
+- Speech recognition enabled
+- Daily usage tracking
+
+#### Pro Tier ($9.99/month)
+- **Unlimited translations**
+- Priority processing
+- Advanced language detection
+- Premium support
+- No daily limits
+
+### Stripe Integration Setup
+
+The app includes Stripe SDK integration for subscription management. To enable full functionality:
+
+1. **Get Stripe API Keys**
+   - Create a Stripe account at https://stripe.com
+   - Get your publishable key from the Stripe Dashboard
+   - Create a product and price for your Pro subscription
+
+2. **Update Configuration**
+   ```kotlin
+   // In SubscriptionManager.kt
+   const val STRIPE_PUBLISHABLE_KEY = "your_actual_publishable_key"
+   const val PRO_PRICE_ID = "your_actual_price_id"
+   const val DEMO_MODE = false // Set to false for production
+   ```
+
+3. **Backend Integration** (Required for Production)
+   - Set up webhook endpoints for subscription events
+   - Implement secure subscription validation
+   - Handle subscription lifecycle events
+
+#### Demo Mode
+For development and testing, the app runs in demo mode with simulated subscription flows. Demo features include:
+- Mock subscription upgrade process
+- Debug menu options to simulate usage limits
+- Local-only subscription state management
 
 ### Alternative APIs
 The translation service can be easily extended to support:

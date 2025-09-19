@@ -79,6 +79,10 @@ class MainActivity : AppCompatActivity() {
         binding.clearButton.setOnClickListener {
             clearTexts()
         }
+        
+        binding.upgradeButton.setOnClickListener {
+            openSubscriptionActivity()
+        }
     }
     
     private fun checkPermissionAndStartListening() {
@@ -202,6 +206,22 @@ class MainActivity : AppCompatActivity() {
             SubscriptionManager.SubscriptionTier.PRO -> "Pro • Unlimited"
             SubscriptionManager.SubscriptionTier.FREE -> "Free • ${summary.remainingTranslations} left today"
         }
+        
+        // Update subscription status card
+        binding.subscriptionTierText.text = when (summary.tier) {
+            SubscriptionManager.SubscriptionTier.PRO -> "Pro Tier"
+            SubscriptionManager.SubscriptionTier.FREE -> "Free Tier"
+        }
+        
+        binding.subscriptionUsageText.text = when (summary.tier) {
+            SubscriptionManager.SubscriptionTier.PRO -> "Unlimited translations"
+            SubscriptionManager.SubscriptionTier.FREE -> "${summary.remainingTranslations} translations remaining today"
+        }
+        
+        binding.upgradeButton.visibility = when (summary.tier) {
+            SubscriptionManager.SubscriptionTier.PRO -> android.view.View.GONE
+            SubscriptionManager.SubscriptionTier.FREE -> android.view.View.VISIBLE
+        }
     }
     
     private fun showUpgradeDialog() {
@@ -316,6 +336,14 @@ class MainActivity : AppCompatActivity() {
     
     override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        
+        // Hide debug options if not in demo mode
+        if (!SubscriptionManager.DEMO_MODE) {
+            menu.findItem(R.id.action_simulate_near_limit)?.isVisible = false
+            menu.findItem(R.id.action_simulate_limit_reached)?.isVisible = false
+            menu.findItem(R.id.action_reset_usage)?.isVisible = false
+        }
+        
         return true
     }
     
@@ -323,6 +351,24 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_subscription -> {
                 openSubscriptionActivity()
+                true
+            }
+            R.id.action_simulate_near_limit -> {
+                subscriptionManager.simulateNearDailyLimit()
+                updateSubscriptionUI()
+                Toast.makeText(this, "Demo: Set usage to near limit", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_simulate_limit_reached -> {
+                subscriptionManager.simulateReachedDailyLimit()
+                updateSubscriptionUI()
+                Toast.makeText(this, "Demo: Daily limit reached", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_reset_usage -> {
+                subscriptionManager.resetDailyUsage()
+                updateSubscriptionUI()
+                Toast.makeText(this, "Demo: Usage reset", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)

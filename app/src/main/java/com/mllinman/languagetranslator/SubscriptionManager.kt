@@ -30,6 +30,9 @@ class SubscriptionManager(private val context: Context) {
         
         // Free tier limits
         const val FREE_TIER_DAILY_LIMIT = 100
+        
+        // Demo mode for testing - set to true for easier testing without Stripe integration
+        const val DEMO_MODE = true
     }
     
     enum class SubscriptionTier {
@@ -44,8 +47,12 @@ class SubscriptionManager(private val context: Context) {
     
     private fun initializeStripe() {
         try {
-            PaymentConfiguration.init(context, STRIPE_PUBLISHABLE_KEY)
-            stripe = Stripe(context, STRIPE_PUBLISHABLE_KEY)
+            if (!DEMO_MODE) {
+                PaymentConfiguration.init(context, STRIPE_PUBLISHABLE_KEY)
+                stripe = Stripe(context, STRIPE_PUBLISHABLE_KEY)
+            } else {
+                Log.i(TAG, "Running in demo mode - Stripe integration disabled")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize Stripe", e)
         }
@@ -193,4 +200,34 @@ class SubscriptionManager(private val context: Context) {
         val dailyUsage: Int,
         val dailyLimit: Int // -1 for unlimited
     )
+    
+    /**
+     * Demo method to simulate reaching daily limit for testing
+     */
+    fun simulateNearDailyLimit() {
+        if (DEMO_MODE && getSubscriptionTier() == SubscriptionTier.FREE) {
+            prefs.edit().putInt(KEY_DAILY_USAGE, FREE_TIER_DAILY_LIMIT - 5).apply()
+            Log.i(TAG, "Demo: Set usage to near daily limit")
+        }
+    }
+    
+    /**
+     * Demo method to simulate reaching daily limit for testing
+     */
+    fun simulateReachedDailyLimit() {
+        if (DEMO_MODE && getSubscriptionTier() == SubscriptionTier.FREE) {
+            prefs.edit().putInt(KEY_DAILY_USAGE, FREE_TIER_DAILY_LIMIT).apply()
+            Log.i(TAG, "Demo: Set usage to daily limit")
+        }
+    }
+    
+    /**
+     * Demo method to reset daily usage for testing
+     */
+    fun resetDailyUsage() {
+        if (DEMO_MODE) {
+            prefs.edit().putInt(KEY_DAILY_USAGE, 0).apply()
+            Log.i(TAG, "Demo: Reset daily usage")
+        }
+    }
 }
