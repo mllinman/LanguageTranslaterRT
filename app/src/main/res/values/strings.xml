@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Language Translator</string>
+    <string name="start_listening">Start Listening</string>
+    <string name="stop_listening">Stop Listening</string>
+    <string name="listening">Listening...</string>
+    <string name="translating">Translating...</string>
+    <string name="translation_result">Translation Result</string>
+    <string name="original_text">Original Text</string>
+    <string name="clear_text">Clear</string>
+    <string name="permission_denied">Microphone permission is required for speech recognition</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="no_speech_detected">No speech detected. Please try again.</string>
+    <string name="translation_error">Translation failed. Please check your internet connection.</string>
+    <string name="speech_recognition_error">Speech recognition failed. Please try again.</string>
+    <string name="detected_language">Detected Language: %s</string>
+</resources>
