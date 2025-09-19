@@ -1,26 +1,60 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-serialization'
 }
 
 android {
     namespace 'com.mllinman.languagetranslator'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.mllinman.languagetranslator"
         minSdk 24
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        targetSdk 34
+        versionCode 2
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Default BuildConfig fields for demo/development
+        buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"pk_test_your_publishable_key_here\""
+        buildConfigField "String", "PRO_MONTHLY_PRICE_ID", "\"price_pro_monthly\""
+        buildConfigField "String", "PRO_ANNUAL_PRICE_ID", "\"price_pro_annual\""
+        buildConfigField "String", "BACKEND_BASE_URL", "\"https://api.yourdomain.com/v1\""
+        buildConfigField "boolean", "DEMO_MODE", "true"
+        buildConfigField "boolean", "DEBUG_LOGGING", "true"
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            
+            buildConfigField "boolean", "DEMO_MODE", "true"
+            buildConfigField "boolean", "DEBUG_LOGGING", "true"
+            
+            // Override with environment variables if available
+            buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"${System.getenv('STRIPE_PUBLISHABLE_KEY') ?: 'pk_test_your_publishable_key_here'}\""
+            buildConfigField "String", "PRO_MONTHLY_PRICE_ID", "\"${System.getenv('PRO_MONTHLY_PRICE_ID') ?: 'price_pro_monthly'}\""
+            buildConfigField "String", "PRO_ANNUAL_PRICE_ID", "\"${System.getenv('PRO_ANNUAL_PRICE_ID') ?: 'price_pro_annual'}\""
+            buildConfigField "String", "BACKEND_BASE_URL", "\"${System.getenv('BACKEND_BASE_URL') ?: 'https://api.yourdomain.com/v1'}\""
+        }
+        
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            buildConfigField "boolean", "DEMO_MODE", "false"
+            buildConfigField "boolean", "DEBUG_LOGGING", "false"
+            
+            // Production requires environment variables
+            buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"${System.getenv('STRIPE_PUBLISHABLE_KEY') ?: 'pk_live_replace_with_production_key'}\""
+            buildConfigField "String", "PRO_MONTHLY_PRICE_ID", "\"${System.getenv('PRO_MONTHLY_PRICE_ID') ?: 'price_replace_with_production_id'}\""
+            buildConfigField "String", "PRO_ANNUAL_PRICE_ID", "\"${System.getenv('PRO_ANNUAL_PRICE_ID') ?: 'price_replace_with_production_id'}\""
+            buildConfigField "String", "BACKEND_BASE_URL", "\"${System.getenv('BACKEND_BASE_URL') ?: 'https://your-production-api.com/v1'}\""
         }
     }
     compileOptions {
@@ -32,22 +66,23 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.7.0'
     
     // Permissions
     implementation 'com.karumi:dexter:6.2.3'
     
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     
     // Stripe SDK for payments and subscriptions
     implementation 'com.stripe:stripe-android:20.34.5'
@@ -55,7 +90,26 @@ dependencies {
     // SharedPreferences for subscription state
     implementation 'androidx.preference:preference-ktx:1.2.1'
     
+    // HTTP client for backend communication
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    
+    // JSON serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2'
+    
+    // Security for API keys and sensitive data
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    
+    // Analytics and crash reporting (optional - can be configured later)
+    // implementation 'com.google.firebase:firebase-analytics-ktx:21.5.0'
+    // implementation 'com.google.firebase:firebase-crashlytics-ktx:18.6.1'
+    
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation 'io.mockk:mockk:1.13.8'
+    
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
 }

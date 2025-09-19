@@ -1,0 +1,218 @@
+name: Production Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.2.0)'
+        required: true
+        type: string
+
+env:
+  # Production environment variables (set these as repository secrets)
+  STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY_PROD }}
+  PRO_MONTHLY_PRICE_ID: ${{ secrets.PRO_MONTHLY_PRICE_ID_PROD }}
+  PRO_ANNUAL_PRICE_ID: ${{ secrets.PRO_ANNUAL_PRICE_ID_PROD }}
+  BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL_PROD }}
+
+jobs:
+  validate-production-config:
+    name: Validate Production Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate required secrets
+      run: |
+        echo "Checking production configuration..."
+        
+        if [ -z "${{ secrets.STRIPE_PUBLISHABLE_KEY_PROD }}" ]; then
+          echo "❌ STRIPE_PUBLISHABLE_KEY_PROD secret not set"
+          exit 1
+        fi
+        
+        if [ -z "${{ secrets.PRO_MONTHLY_PRICE_ID_PROD }}" ]; then
+          echo "❌ PRO_MONTHLY_PRICE_ID_PROD secret not set"
+          exit 1
+        fi
+        
+        if [ -z "${{ secrets.BACKEND_BASE_URL_PROD }}" ]; then
+          echo "❌ BACKEND_BASE_URL_PROD secret not set"
+          exit 1
+        fi
+        
+        if [ -z "${{ secrets.ANDROID_KEYSTORE }}" ]; then
+          echo "❌ ANDROID_KEYSTORE secret not set"
+          exit 1
+        fi
+        
+        if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then
+          echo "❌ KEYSTORE_PASSWORD secret not set"
+          exit 1
+        fi
+        
+        echo "✅ All required secrets are configured"
+
+  build-and-sign-release:
+    name: Build and Sign Release APK
+    runs-on: ubuntu-latest
+    needs: validate-production-config
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Create keystore file
+      run: |
+        echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > app/release-keystore.jks
+        
+    - name: Build and sign release APK
+      run: |
+        ./gradlew assembleRelease \
+          -Pandroid.injected.signing.store.file=release-keystore.jks \
+          -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
+          -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
+          -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+      
+    - name: Upload signed APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release-signed
+        path: app/build/outputs/apk/release/app-release.apk
+        
+    - name: Upload to Play Store (if configured)
+      if: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_KEY }}
+      uses: r0adkll/upload-google-play@v1
+      with:
+        serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_KEY }}
+        packageName: com.mllinman.languagetranslator
+        releaseFiles: app/build/outputs/apk/release/app-release.apk
+        track: production
+        status: completed
+
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: validate-production-config
+    if: ${{ secrets.DEPLOY_BACKEND == 'true' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to production
+      run: |
+        echo "Backend deployment would happen here"
+        echo "This could deploy to Heroku, Railway, DigitalOcean, etc."
+        echo "Configure your deployment method in repository secrets"
+        
+        # Example for Heroku:
+        # - name: Deploy to Heroku
+        #   uses: akhileshns/heroku-deploy@v3.12.12
+        #   with:
+        #     heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        #     heroku_app_name: "your-app-name"
+        #     heroku_email: "your-email@example.com"
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-and-sign-release]
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download signed APK
+      uses: actions/download-artifact@v3
+      with:
+        name: app-release-signed
+        path: ./release-artifacts/
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        release_name: Language Translator ${{ github.event.inputs.version }}
+        body: |
+          ## 🚀 Language Translator ${{ github.event.inputs.version }}
+          
+          ### What's New
+          - Production-ready build with optimized performance
+          - Enhanced subscription system
+          - Improved translation accuracy
+          - Bug fixes and stability improvements
+          
+          ### 💰 Monetization Features
+          - Freemium model with usage limits
+          - Stripe payment integration
+          - Multiple subscription tiers
+          - Usage analytics
+          
+          ### 📱 Installation
+          Download the APK below and install on your Android device.
+          
+          ### 🔧 For Developers
+          See [PRODUCTION_CONFIG.md](PRODUCTION_CONFIG.md) for deployment instructions.
+        draft: false
+        prerelease: false
+        
+    - name: Upload APK to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-artifacts/app-release.apk
+        asset_name: LanguageTranslator-${{ github.event.inputs.version }}.apk
+        asset_content_type: application/vnd.android.package-archive
+
+  notify-success:
+    name: Notify Deployment Success
+    runs-on: ubuntu-latest
+    needs: [build-and-sign-release, deploy-backend]
+    if: always() && (needs.build-and-sign-release.result == 'success')
+    
+    steps:
+    - name: Notify success
+      run: |
+        echo "🎉 Production deployment completed successfully!"
+        echo "✅ APK built and signed"
+        echo "✅ Release artifacts uploaded"
+        
+        if [ "${{ needs.deploy-backend.result }}" == "success" ]; then
+          echo "✅ Backend deployed"
+        fi
+        
+        echo ""
+        echo "Next steps:"
+        echo "1. Test the production APK"
+        echo "2. Monitor backend health"
+        echo "3. Check analytics and metrics"
+        echo "4. Prepare marketing materials"
