@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Simple Backend Setup Script for Language Translator Monetization
+# Simple Backend Setup Script for Language-TranslaterRT Monetization
 # This creates a basic Node.js/Express backend with Stripe integration
 
-echo "🚀 Setting up Language Translator Backend for Monetization..."
+echo "🚀 Setting up Language-TranslaterRT Backend for Monetization..."
 
 # Create backend directory structure
 mkdir -p language-translator-backend
@@ -14,7 +14,7 @@ cat > package.json << 'EOF'
 {
   "name": "language-translator-backend",
   "version": "1.0.0",
-  "description": "Backend service for Language Translator app monetization",
+  "description": "Backend service for Language-TranslaterRT app monetization",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -317,7 +317,7 @@ function getTierFromPriceId(priceId) {
 }
 
 app.listen(PORT, () => {
-  console.log(`🚀 Language Translator Backend running on port ${PORT}`);
+  console.log(`🚀 Language-TranslaterRT Backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
 
@@ -533,7 +533,7 @@ echo "📦 Installing dependencies..."
 npm install
 
 # Start the server
-echo "🚀 Starting Language Translator Backend..."
+echo "🚀 Starting Language-TranslaterRT Backend..."
 npm run dev
 EOF
 
@@ -557,9 +557,9 @@ EOF
 
 # Create README for backend
 cat > README.md << 'EOF'
-# Language Translator Backend
+# Language-TranslaterRT Backend
 
-Simple Node.js/Express backend for handling Language Translator app subscriptions and monetization.
+Simple Node.js/Express backend for handling Language-TranslaterRT app subscriptions and monetization.
 
 ## Features
 
@@ -642,7 +642,7 @@ The backend automatically tracks:
 Access via database queries or integrate with analytics services.
 EOF
 
-echo "✅ Language Translator Backend setup complete!"
+echo "✅ Language-TranslaterRT Backend setup complete!"
 echo ""
 echo "📁 Created backend in: language-translator-backend/"
 echo "🔧 Next steps:"

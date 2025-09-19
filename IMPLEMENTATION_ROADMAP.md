@@ -34,7 +34,7 @@
 # Get your Stripe keys
 1. Visit https://dashboard.stripe.com/apikeys
 2. Copy your publishable and secret keys
-3. Create a product: "Language Translator Pro"
+3. Create a product: "Language-TranslaterRT Pro"
 4. Set price: $9.99/month
 5. Copy the Price ID
 ```

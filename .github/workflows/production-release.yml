@@ -159,9 +159,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.event.inputs.version }}
-        release_name: Language Translator ${{ github.event.inputs.version }}
+        release_name: Language-TranslaterRT ${{ github.event.inputs.version }}
         body: |
-          ## 🚀 Language Translator ${{ github.event.inputs.version }}
+          ## 🚀 Language-TranslaterRT ${{ github.event.inputs.version }}
           
           ### What's New
           - Production-ready build with optimized performance

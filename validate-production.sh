@@ -3,7 +3,7 @@
 # Production Configuration Validation Script
 # Run this before deploying to production
 
-echo "🔍 Language Translator Production Configuration Validator"
+echo "🔍 Language-TranslaterRT Production Configuration Validator"
 echo "========================================================"
 echo ""
 
