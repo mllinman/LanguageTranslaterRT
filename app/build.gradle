@@ -51,10 +51,10 @@ android {
             buildConfigField "boolean", "DEBUG_LOGGING", "false"
             
             // Production requires environment variables
-            buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"${System.getenv('STRIPE_PUBLISHABLE_KEY') ?: 'pk_live_replace_with_production_key'}\""
-            buildConfigField "String", "PRO_MONTHLY_PRICE_ID", "\"${System.getenv('PRO_MONTHLY_PRICE_ID') ?: 'price_replace_with_production_id'}\""
-            buildConfigField "String", "PRO_ANNUAL_PRICE_ID", "\"${System.getenv('PRO_ANNUAL_PRICE_ID') ?: 'price_replace_with_production_id'}\""
-            buildConfigField "String", "BACKEND_BASE_URL", "\"${System.getenv('BACKEND_BASE_URL') ?: 'https://your-production-api.com/v1'}\""
+            buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"${System.getenv('STRIPE_PUBLISHABLE_KEY') ?: 'REPLACE_WITH_PRODUCTION_KEY'}\""
+            buildConfigField "String", "PRO_MONTHLY_PRICE_ID", "\"${System.getenv('PRO_MONTHLY_PRICE_ID') ?: 'REPLACE_WITH_PRODUCTION_ID'}\""
+            buildConfigField "String", "PRO_ANNUAL_PRICE_ID", "\"${System.getenv('PRO_ANNUAL_PRICE_ID') ?: 'REPLACE_WITH_PRODUCTION_ID'}\""
+            buildConfigField "String", "BACKEND_BASE_URL", "\"${System.getenv('BACKEND_BASE_URL') ?: 'https://REPLACE-WITH-PRODUCTION-API.com/v1'}\""
         }
     }
     compileOptions {

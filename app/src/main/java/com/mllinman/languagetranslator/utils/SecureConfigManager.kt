@@ -96,17 +96,18 @@ object SecureConfigManager {
         }
         
         if (stripeKey == "pk_test_your_publishable_key_here" || 
-            stripeKey == "pk_live_replace_with_production_key") {
+            stripeKey == "REPLACE_WITH_PRODUCTION_KEY" ||
+            stripeKey.contains("replace_with_production_key")) {
             issues.add("Stripe publishable key not configured")
         }
         
         if (BuildConfig.PRO_MONTHLY_PRICE_ID == "price_pro_monthly" ||
-            BuildConfig.PRO_MONTHLY_PRICE_ID == "price_replace_with_production_id") {
+            BuildConfig.PRO_MONTHLY_PRICE_ID == "REPLACE_WITH_PRODUCTION_ID") {
             issues.add("Stripe price IDs not configured")
         }
         
         if (BuildConfig.BACKEND_BASE_URL == "https://api.yourdomain.com/v1" ||
-            BuildConfig.BACKEND_BASE_URL == "https://your-production-api.com/v1") {
+            BuildConfig.BACKEND_BASE_URL.contains("REPLACE-WITH-PRODUCTION-API")) {
             issues.add("Backend URL not configured")
         }
         
